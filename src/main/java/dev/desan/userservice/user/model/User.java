@@ -1,6 +1,8 @@
 package dev.desan.userservice.user.model;
 
 import dev.desan.userservice.contact.model.Contact;
+import dev.desan.userservice.role.model.Role;
+import dev.desan.userservice.role.model.RoleName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -35,15 +37,20 @@ public class User implements UserDetails {
     @JoinColumn(name = "contact_uuid", referencedColumnName = "uuid", nullable = false)
     private Contact contact;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_uuid"))
-    @Column(name = "role")
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<Role> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(role -> (GrantedAuthority) () -> "ROLE_" + role.name()).toList();
+        return (roles == null ? Set.<Role>of() : roles)
+                .stream()
+                .map(role -> (GrantedAuthority) () -> "ROLE_" + role.getName())
+                .toList();
     }
 
     @Override

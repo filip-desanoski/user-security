@@ -20,9 +20,13 @@ spring:
               - email
               - profile
 
+jwt:
+  private.key: classpath:app.key
+  public.key: classpath:app.pub
+
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
-        web: DEBUG
+    root: debug
+    org.springframework:
+        security: debug
+        web: debug
